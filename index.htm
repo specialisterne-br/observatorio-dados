@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+    const myData=[
+    	          [28,82],
+		          [32,87],
+		          [7,90],
+		          [16,98],
+		          [4,101],
+		          [1,104],
+		          [11,106],
+		          [2,108],
+		          [38,111],
+		          [35,115],
+		          [14,120],
+		          [9,122],
+		          [19,122],
+		          [24,127],
+		          [17,129],
+		          [23,132],
+		          [30,132],
+		          [40,136],
+		          [29,137],
+		          [3,138],
+		          [18,138],
+		          [34,138],
+		          [39,140],
+		          [6,141],
+		          [10,142],
+		          [37,142],
+		          [25,144],
+		          [27,146],
+		          [26,151],
+		          [8,154],
+		          [20,161],
+		          [5,163],
+		          [21,167],
+		          [13,169],
+		          [31,172],
+		          [36,179],
+		          [33,183],
+		          [22,189],
+		          [12,201],
+		          [15,210]
+		];
+
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+
+            var data = new google.visualization.DataTable();
+	        data.addColumn('string', 'C');
+	        data.addColumn('number', 'T');
+	        data.addRows(
+	        	myData.map(  (x) => [String(x[0]), x[1]]  )
+	        );
+
+        var options = {
+          title: 'Histograma de T (minutos por consumidor)',
+          legend: { position: 'none' },
+          vAxis:{title: 'Quantidade de registros', titleTextStyle:{color: '#444'}},
+		  hAxis:{title: 'T', titleTextStyle:{color: '#444'}}
+
+        };
+
+        var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+  </body>
+</html>
