@@ -1,75 +1,87 @@
 <html>
   <head>
+
+      <script type="text/javascript" src="https://unpkg.com/papaparse@4.6.3/papaparse.min.js"></script>
+
+		<!-- script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script -->
+
+
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-    const myData=[
-    	          [28,82],
-		          [32,87],
-		          [7,90],
-		          [16,98],
-		          [4,101],
-		          [1,104],
-		          [11,106],
-		          [2,108],
-		          [38,111],
-		          [35,115],
-		          [14,120],
-		          [9,122],
-		          [19,122],
-		          [24,127],
-		          [17,129],
-		          [23,132],
-		          [30,132],
-		          [40,136],
-		          [29,137],
-		          [3,138],
-		          [18,138],
-		          [34,138],
-		          [39,140],
-		          [6,141],
-		          [10,142],
-		          [37,142],
-		          [25,144],
-		          [27,146],
-		          [26,151],
-		          [8,154],
-		          [20,161],
-		          [5,163],
-		          [21,167],
-		          [13,169],
-		          [31,172],
-		          [36,179],
-		          [33,183],
-		          [22,189],
-		          [12,201],
-		          [15,210]
-		];
 
-      google.charts.load("current", {packages:["corechart"]});
-      google.charts.setOnLoadCallback(drawChart);
-      function drawChart() {
+	 const url_dadosCSV = 'https://raw.githubusercontent.com/specialisterne-br/observatorio-dados/master/exemplos01/exemplo01-bom.csv'
+	 const url_allowCORS = 'https://cors-anywhere.herokuapp.com/'
 
-            var data = new google.visualization.DataTable();
-	        data.addColumn('string', 'C');
-	        data.addColumn('number', 'T');
-	        data.addRows(
-	        	myData.map(  (x) => [String(x[0]), x[1]]  )
-	        );
+	 google.charts.load("current", {packages:["corechart"]});
 
-        var options = {
-          title: 'Histograma de T (minutos por consumidor)',
-          legend: { position: 'none' },
-          vAxis:{title: 'Quantidade de registros', titleTextStyle:{color: '#444'}},
+	 Papa.parse(url_allowCORS + url_dadosCSV, {
+		  download: true,
+		  dynamicTyping: true,
+		  complete: function(results) {
+				let head = results.data.shift()
+				//console.log("Finished:", results.data)
+				google.charts.setOnLoadCallback(
+					() => drawChart_histo(results.data,head)
+
+				);
+		  }
+	 })
+
+     function drawChart_histo(myData,head) {
+        //alert("DEBUG")
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', head[0]); //  ex. T
+		data.addColumn('number', head[1]);  // ex. C
+		data.addRows(
+			myData.map(  (x) => [String(x[0]), x[1]]  )
+		);
+
+		var options = {
+		  title: 'Histograma de T (minutos por consumidor)',
+		  legend: { position: 'none' },
+		  vAxis:{title: 'Quantidade de registros', titleTextStyle:{color: '#444'}},
 		  hAxis:{title: 'T', titleTextStyle:{color: '#444'}}
 
-        };
+		};
 
-        var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
-        chart.draw(data, options);
-      }
+	   var chart = new google.visualization.Histogram(document.getElementById('chart_hist1'));
+	   chart.draw(data, options);
+	 }
+
+     function drawChart_tab(myData,head) {
+        //alert("DEBUG")
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', head[0]); //  ex. T
+		data.addColumn('number', head[1]);  // ex. C
+		data.addRows(
+			myData.map(  (x) => [String(x[0]), x[1]]  )
+		);
+
+		var options = {
+		  title: 'Histograma de T (minutos por consumidor)',
+		  legend: { position: 'none' },
+		  vAxis:{title: 'Quantidade de registros', titleTextStyle:{color: '#444'}},
+		  hAxis:{title: 'T', titleTextStyle:{color: '#444'}}
+
+		};
+
+	   var chart = new google.visualization.Histogram(document.getElementById('chart_hist1'));
+	   chart.draw(data, options);
+	 }
+
+
     </script>
   </head>
   <body>
-    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+  <h1> Histograma e tabela do exemplo 1.1</h1>
+	Visualizando <a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/Exemplo/1.1" target="_blanck">exemplo 1.1</a> com
+<a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/G-Charts" target="_blanck">G-Charts</a>.
+
+    <div id="chart_hist1" style="width: 900px; height: 500px;"></div>
+
+	<div id="chart_tab1" style="width: 900px; height: 500px;">
+	Visualizador de tabela em construção
+	</div>
+
   </body>
 </html>
