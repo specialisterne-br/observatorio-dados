@@ -6,84 +6,171 @@
 
 	<script type="text/javascript" src="https://unpkg.com/papaparse@4.6.3/papaparse.min.js"></script>
 
-	<!-- script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
+    // gambi para simular SQL e calculo on-the-fly
+    function median(values){
+      if(values.length ===0) return 0;
+      values.sort(function(a,b){ return a-b; });
+      var half = Math.floor(values.length / 2);
+      if (values.length % 2)
+        return values[half];
+      return (values[half - 1] + values[half]) / 2.0;
+    }
+
+    function avg_stdDev(values,col=1){
+      var avg = average(values,col);
+      var squareDiffs = values.map(function(value){
+        var diff =  (value.length? value[col]: value) - avg;
+        var sqrDiff = diff * diff;
+        return sqrDiff;
+      });
+      var avgSquareDiff = average(squareDiffs);
+      var stdDev = Math.sqrt(avgSquareDiff);
+      return [avg,stdDev];
+    }
+
+    function average(data,col=1){
+      var sum = data.reduce(function(sum, value){
+        return sum + (value.length? value[col]: value);
+      }, 0);
+      var avg = sum / data.length;
+      return avg;
+    }
+
+    ///////
 
 	 const url_dadosCSV = 'https://raw.githubusercontent.com/specialisterne-br/observatorio-dados/master/exemplos01/exemplo01-bom.csv'
 	 const url_allowCORS = 'https://cors-anywhere.herokuapp.com/'
 
 
-
-
-
-
-
-	 google.charts.load("current", {packages:['corechart','table']});
+	 google.charts.load("current", {packages:['corechart','table', 'scatter']});
 
 	 Papa.parse(url_allowCORS + url_dadosCSV, {
 		  download: true,
 		  dynamicTyping: true,
 		  complete: function(results) {
 				let head = results.data.shift()
-				google.charts.setOnLoadCallback(  () => drawChart_histo(results.data,head)  );
-				google.charts.setOnLoadCallback(  () => drawChart_tab(results.data,head)  );
+				google.charts.setOnLoadCallback(  () => drawChart_histo(results.data,head)  )
+				google.charts.setOnLoadCallback(  () => drawChart_tab(results.data,head)  )
+        google.charts.setOnLoadCallback(  () => drawChart_xy(results.data,head)  )
+        drawCard_summary(results.data,head)
 		  }
 	 })
 
-     function drawChart_histo(myData,head) {
-        //alert("DEBUG")
-		var data = new google.visualization.DataTable();
-		data.addColumn('string', head[0]); //  ex. T
-		data.addColumn('number', head[1]);  // ex. C
-		data.addRows(
-			myData.map(  (x) => [String(x[0]), x[1]]  )
-		);
-		var options = {
-		  title: 'Histograma de T (minutos por consumidor)',
-		  legend: { position: 'none' },
-		  vAxis:{title: 'Quantidade de registros', titleTextStyle:{color: '#444'}},
-		  hAxis:{title: 'T', titleTextStyle:{color: '#444'}}
-
-		};
-	    var chart = new google.visualization.Histogram(document.getElementById('chart_hist1'));
-	    chart.draw(data, options);
+   function drawChart_histo(myData,head) {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', head[0]); //  ex. T
+      data.addColumn('number', head[1]);  // ex. C
+      data.addRows(
+        myData.map(  (x) => [String(x[0]), x[1]]  )
+      );
+      var options = {
+        title: 'Histograma de T (minutos por consumidor)',
+        legend: { position: 'none' },
+        vAxis:{title: 'Quantidade de registros', titleTextStyle:{color: '#444'}},
+        hAxis:{title: 'T', titleTextStyle:{color: '#444'}},
+        colors: ['#01b8aa']
+      };
+      var chart = new google.visualization.Histogram(document.getElementById('chart_hist1'));
+      chart.draw(data, options);
 	 }
 
-     function drawChart_tab(myData,head) {
-        //alert("DEBUG")
+   function drawChart_tab(myData,head) {
 		var data = new google.visualization.DataTable();
 		data.addColumn('number', head[0]); //  ex. T
 		data.addColumn('number', head[1]);  // ex. C
 		data.addRows( myData );
+
 		var table = new google.visualization.Table(document.getElementById('charchart_tab1'));
-		table.draw(data, {showRowNumber: false, width: '50%', height:'180px'});
+		table.draw(data, {showRowNumber: false, width: '25%', height:'180px'});
+	 }
+
+   function drawCard_summary(myData,head) {
+     let lst = myData.map( x=>x[1]) // select T from myData
+     let avg = avg_stdDev(myData,1).map( x=>Math.round(x) )
+     // falta! [ ].foreach(    $(item).text(val) )
+     $('#card_avg').text( `${avg[0]} ± ${avg[1]}` )
+     $('#card_min').text( Math.min(...lst) )
+     $('#card_max').text( Math.max(...lst) )
+     $('#card_med').text( median(lst) )
+     $('#card_n').text( lst.length )
+   }
+
+   ///////////////
+
+
+   function drawChart_xy(myData,head) {
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', head[0]); //  ex. T
+      data.addColumn('number', head[1]);  // ex. C
+      data.addRows( myData );
+
+      var options = {
+        width: 600,
+        height: 320,
+        colors: ['#01b8aa'],
+        chart: {
+          title: 'Tempo por consumidor'
+        },
+        hAxis: {title: 'T (minutos de uso)'},
+        vAxis: {title: 'C (consumidor)'}
+      };
+      var chart = new google.charts.Scatter(document.getElementById('chart_xy1'));
+      chart.draw(data, google.charts.Scatter.convertOptions(options));
 	 }
 
     </script>
-
+<!-- 		div.chartbox {text-align:center}  -->
     <style>
-		div.chartbox {width:90%;min-height: 420px;text-align:center}
+    #chart_hist1 {min-height:420px; text-align:center}
+    table.card {
+      width:36%;
+      font-size: 115%;
+      float:right;
+      border-width: 1px;
+      border-style: solid;
+      border-color: black;
+    }
+    table.card td, #card_avg  {font-weight: bold; color: #01b8aa}
+    table.card td small {color:#AAA; font-weight: normal;}
 		@media screen and (max-width: 500px) {
 			h1, h2, h3 {font-size:130%}
-			div.chartbox {min-height: 180px;}
+      #chart_hist1 {min-height: 180px;}
+      table.card {min-width: 280px;}
 		}
 		.google-visualization-table-td {
 			text-align: center !important;
 		}
-
    </style>
   </head>
+
   <body>
-  <h1> Histograma e tabela do exemplo 1.1</h1>
-	Visualizando <a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/Exemplo/1.1" target="_blanck">exemplo 1.1</a> com
-<a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/G-Charts" target="_blanck">G-Charts</a>.
+
+    <h1> Histograma e tabela do exemplo 1.1</h1>
+    <p>	Visualizando <a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/Exemplo/1.1" target="_blanck">exemplo 1.1</a> com
+      <a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/G-Charts" target="_blanck">G-Charts</a>.
+    </p>
+
+    <table class="card">
+      <tr>  <th colspan="2">MÉDIA: <span id="card_avg"></span></th>  </tr>
+      <tr>
+        <td><span id="card_med"></span><br/><small>Mediana de T</small></td>
+        <td><span id="card_n"></span><br/><small>Contagem de T</small></td>
+      </tr>
+      <tr>
+        <td><span id="card_min"></span><br/><small>Mínimo de T</small></td>
+        <td><span id="card_max"></span><br/><small>Mínimo de T</small></td>
+      </tr>
+    </table>
+    <div class="chartbox" id="charchart_tab1">[carregando tabela...]</div>
 
     <div class="chartbox" id="chart_hist1">[carregando histograma...]</div>
+    <div class="chartbox" id="chart_xy1">[carregando gráfico XY...]</div>
 
-	<div class="chartbox" id="charchart_tab1">[carregando tabela...]</div>
 
   </body>
 </html>
