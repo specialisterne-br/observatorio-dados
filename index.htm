@@ -15,18 +15,21 @@
 	 const url_dadosCSV = 'https://raw.githubusercontent.com/specialisterne-br/observatorio-dados/master/exemplos01/exemplo01-bom.csv'
 	 const url_allowCORS = 'https://cors-anywhere.herokuapp.com/'
 
-	 google.charts.load("current", {packages:["corechart"]});
+
+
+
+
+
+
+	 google.charts.load("current", {packages:['corechart','table']});
 
 	 Papa.parse(url_allowCORS + url_dadosCSV, {
 		  download: true,
 		  dynamicTyping: true,
 		  complete: function(results) {
 				let head = results.data.shift()
-				//console.log("Finished:", results.data)
-				google.charts.setOnLoadCallback(
-					() => drawChart_histo(results.data,head)
-
-				);
+				google.charts.setOnLoadCallback(  () => drawChart_histo(results.data,head)  );
+				google.charts.setOnLoadCallback(  () => drawChart_tab(results.data,head)  );
 		  }
 	 })
 
@@ -38,7 +41,6 @@
 		data.addRows(
 			myData.map(  (x) => [String(x[0]), x[1]]  )
 		);
-
 		var options = {
 		  title: 'Histograma de T (minutos por consumidor)',
 		  legend: { position: 'none' },
@@ -46,40 +48,32 @@
 		  hAxis:{title: 'T', titleTextStyle:{color: '#444'}}
 
 		};
-
-	   var chart = new google.visualization.Histogram(document.getElementById('chart_hist1'));
-	   chart.draw(data, options);
+	    var chart = new google.visualization.Histogram(document.getElementById('chart_hist1'));
+	    chart.draw(data, options);
 	 }
 
      function drawChart_tab(myData,head) {
         //alert("DEBUG")
 		var data = new google.visualization.DataTable();
-		data.addColumn('string', head[0]); //  ex. T
+		data.addColumn('number', head[0]); //  ex. T
 		data.addColumn('number', head[1]);  // ex. C
-		data.addRows(
-			myData.map(  (x) => [String(x[0]), x[1]]  )
-		);
-
-		var options = {
-		  title: 'Histograma de T (minutos por consumidor)',
-		  legend: { position: 'none' },
-		  vAxis:{title: 'Quantidade de registros', titleTextStyle:{color: '#444'}},
-		  hAxis:{title: 'T', titleTextStyle:{color: '#444'}}
-
-		};
-
-	   var chart = new google.visualization.Histogram(document.getElementById('chart_hist1'));
-	   chart.draw(data, options);
+		data.addRows( myData );
+		var table = new google.visualization.Table(document.getElementById('charchart_tab1'));
+		table.draw(data, {showRowNumber: false, width: '50%', height:'180px'});
 	 }
 
     </script>
 
     <style>
-		div.chartbox {width:100%;min-height: 520px;}
+		div.chartbox {width:90%;min-height: 420px;text-align:center}
 		@media screen and (max-width: 500px) {
 			h1, h2, h3 {font-size:130%}
 			div.chartbox {min-height: 180px;}
 		}
+		.google-visualization-table-td {
+			text-align: center !important;
+		}
+
    </style>
   </head>
   <body>
@@ -87,11 +81,9 @@
 	Visualizando <a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/Exemplo/1.1" target="_blanck">exemplo 1.1</a> com
 <a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/G-Charts" target="_blanck">G-Charts</a>.
 
-    <div class="chartbox" id="chart_hist1"></div>
+    <div class="chartbox" id="chart_hist1">[carregando histograma...]</div>
 
-	<div class="chartbox" id="charchart_tab1">
-	Visualizador de tabela em construção
-	</div>
+	<div class="chartbox" id="charchart_tab1">[carregando tabela...]</div>
 
   </body>
 </html>
