@@ -72,18 +72,25 @@
 	   chart.draw(data, options);
 	 }
 
-
     </script>
+
+    <style>
+		div.chartbox {width:100%;min-height: 520px;}
+		@media screen and (max-width: 500px) {
+			h1, h2, h3 {font-size:130%}
+			div.chartbox {min-height: 180px;}
+		}
+   </style>
   </head>
   <body>
   <h1> Histograma e tabela do exemplo 1.1</h1>
 	Visualizando <a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/Exemplo/1.1" target="_blanck">exemplo 1.1</a> com
 <a href="https://pt.wikiversity.org/wiki/Observat%C3%B3rio_de_dados/BI/G-Charts" target="_blanck">G-Charts</a>.
 
-    <div id="chart_hist1" style="width: 900px; height: 500px;"></div>
+    <div class="chartbox" id="chart_hist1"></div>
 
-	<div id="chart_tab1" style="width: 900px; height: 500px;">
-	Visualizador de tabela em construção
+	<div class="chartbox" id="charchart_tab1">
+	Visualizador de tabela em construÃ§Ã£o
 	</div>
 
   </body>
